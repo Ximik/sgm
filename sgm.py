@@ -14,6 +14,13 @@ def sed(files, f, t):
       for line in fileinput.input(file, inplace = 1):
           print(line.replace('%' + f + '%', t).rstrip('\n'))
 
+def add_x11(config):
+    shutil.copytree(SOURCE + 'sgm/x11', 'sgm/x11')
+    x11_cpp = 'sgm/x11/src/x11.cpp'
+    sed(x11_cpp, 'name', config['name'])
+    sed(x11_cpp, 'width', config['width'])
+    sed(x11_cpp, 'height', config['height'])
+
 def add_android(config):
     shutil.copytree(SOURCE + 'sgm/android', 'sgm/android')
     name = config['name']
@@ -25,6 +32,18 @@ def add_android(config):
     sed('sgm/android/java/*.java', 'package', package)
     sed('sgm/android/jni/jni.c', '_package_', _package_)
     shutil.move('sgm/android/java', 'sgm/android/src/' + package_path)
+
+def build_x11():
+    objects_text = ["OBJECTS_LOCAL= "]
+    for file in glob('src/*.cpp'):
+        file = file[4:]
+        objects_text.append(os.path.splitext(file)[0] + '.o ')
+    for file in glob('src/*.cpp'):
+        file = file[4:]
+        objects_text.append('\n' + os.path.splitext(file)[0] + '.o: $(SRC_DIR)/' + file + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + file)
+    objects = open('sgm/x11/build/Objects.mk', 'w')
+    objects.write(''.join(objects_text))
+    objects.close()
 
 def build_android():
     src = ['jni.c', 'hook.cpp']
@@ -51,5 +70,7 @@ if sys.argv[1] == 'init':
 elif sys.argv[1] == 'build':
     if sys.argv[2] == 'android':
         build_android()
+    elif sys.argv[2] == 'x11':
+        build_x11()
 else:
     print('unknown cmd')

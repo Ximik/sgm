@@ -1,4 +1,3 @@
-
 #include "x11.h"
 #include "../../app.h"
 
@@ -8,6 +7,11 @@
 
 namespace X11
 {   
+    const char *name = "%name%";
+    
+    const int width = %width%;
+    const int height = %height%;
+    
     const int x = 0;
     const int y = 0;
     
@@ -83,7 +87,7 @@ void X11::init()
         attr.colormap = XCreateColormap(x_display, rootWindow, visInfo->visual, AllocNone);
         attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
         unsigned long mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-    window = XCreateWindow(x_display, rootWindow, 0, 0, WIDTH, HEIGHT,
+    window = XCreateWindow(x_display, rootWindow, 0, 0, width, height,
                 0, visInfo->depth, InputOutput,
                 visInfo->visual, mask, &attr );
 
@@ -92,11 +96,11 @@ void X11::init()
         XSizeHints sizehints;
         sizehints.x = x;
         sizehints.y = y;
-        sizehints.width  = WIDTH;
-        sizehints.height = HEIGHT;
+        sizehints.width  = width;
+        sizehints.height = height;
         sizehints.flags = USSize | USPosition;
     XSetNormalHints(x_display, window, &sizehints);
-    XSetStandardProperties(x_display, window, NAME, NAME, None, (char**)NULL, 0, &sizehints);
+    XSetStandardProperties(x_display, window, name, name, None, (char**)NULL, 0, &sizehints);
 
     eglBindAPI(EGL_OPENGL_ES_API);
 
@@ -149,7 +153,7 @@ void X11::init()
     Atom WM_DELETE_WINDOW = XInternAtom(x_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(x_display, window, &WM_DELETE_WINDOW, 1);
 
-    App::init(WIDTH, HEIGHT);
+    App::init(width, height);
 }
 
 void X11::mainLoop()
