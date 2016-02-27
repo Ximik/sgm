@@ -1,0 +1,8 @@
+[x11]
+name: %name%
+width: 480
+height: 640
+
+[android]
+name: %name%
+package: com.%name_lower%

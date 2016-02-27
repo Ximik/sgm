@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+
+import argparse
+import configparser
+import errno
+import re
+import shutil
+import os
+import sys
+import fileinput
+from glob import glob
+
+PLATFORMS = ['x11', 'android']
+SOURCE = os.path.dirname(os.path.realpath(__file__)) + '/template/'
+
+def sed(files, f, t):
+    for file in glob(files):
+      for line in fileinput.input(file, inplace = 1):
+          print(line.replace('%' + f + '%', t).rstrip('\n'))
+
+def add_x11(config):
+    shutil.copytree(SOURCE + 'sgm/x11', 'sgm/x11')
+    x11_cpp = 'sgm/x11/src/x11.cpp'
+    sed(x11_cpp, 'name', config['name'])
+    sed(x11_cpp, 'width', config['width'])
+    sed(x11_cpp, 'height', config['height'])
+
+def add_android(config):
+    shutil.copytree(SOURCE + 'sgm/android', 'sgm/android')
+    name = config['name']
+    package = config['package']
+    _package_ = package.replace('.', '_')
+    package_path = package.replace('.', '/')
+    sed('sgm/android/AndroidManifest.xml', 'name', name)
+    sed('sgm/android/AndroidManifest.xml', 'package', package)
+    sed('sgm/android/java/*.java', 'package', package)
+    sed('sgm/android/jni/jni.c', '_package_', _package_)
+    shutil.move('sgm/android/java', 'sgm/android/src/' + package_path)
+
+def build_x11(sources):
+    objects = []
+    targets = []
+    for source in sources:
+        source = source[4:]
+        source_o = os.path.splitext(source)[0] + '.o '
+        objects.append(source_o)
+        targets.append('\n' + source_o + ': $(SRC_DIR)/' + source + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + source)
+    with open('sgm/x11/build/Objects.mk', 'w') as mk:
+        mk.write('OBJECTS_LOCAL=' + ''.join(objects + targets))
+
+def build_android(sources):
+    sources.insert(0, 'hook.cpp')
+    sources.insert(0, 'jni.c')
+    sources = 'LOCAL_SRC_FILES := ' + ' '.join(sources)
+    for line in fileinput.input('sgm/android/jni/Android.mk', inplace = 1):
+        if line.startswith('LOCAL_SRC_FILES'):
+            print(sources)
+        else:
+            print(line.rstrip('\n'))
+
+def new(args):
+    name = args.name
+    try:
+        os.mkdir(name)
+        shutil.copy(SOURCE + 'config', name)
+        sed(name + '/config', 'name', name)
+        sed(name + '/config', 'name_lower', name.lower())
+    except FileExistsError:
+        print("%s already exists" % name)
+        sys.exit(errno.EEXIST)
+
+def init(args):
+    try:
+        os.mkdir('sgm')
+    except FileExistsError:
+        print('sgm folder already exists')
+        sys.exit(errno.EEXIST)
+    if not os.path.isfile('config'):
+        print('no config file')
+        sys.exit(errno.ENOENT)
+    shutil.copy(SOURCE + 'sgm/app.h', 'sgm')
+    shutil.copytree(SOURCE + 'src', 'src')
+    config = configparser.ConfigParser()
+    config.read('config')
+    platforms = config.sections()
+    for platform in platforms:
+        if not (platform in PLATFORMS):
+            print("unknown platform %s" % platform)
+            sys.exit(errno.EEXIST)
+        globals()['add_' + platform](config[platform])
+
+def build(args):
+    platform = args.platform
+    if not (platform in PLATFORMS):
+        print("unknown platform %s" % platform)
+        sys.exit(errno.EEXIST)
+    sources = []
+    for root, directories, filenames in os.walk('src'):
+        for filename in filenames:
+            if filename.endswith(".cpp") :
+                sources.append(os.path.join(root, filename))
+    globals()['build_' + platform](sources)
+
+def name_type(string):
+    pattern = re.compile('^[a-zA-Z0-9]+$')
+    if not pattern.match(string):
+        raise argparse.ArgumentTypeError('invalid name')
+    return string
+
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers()
+
+parser_new = subparsers.add_parser('new')
+parser_new.add_argument('name', type=name_type)
+parser_new.set_defaults(func=new)
+
+parser_init = subparsers.add_parser('init')
+parser_init.set_defaults(func=init)
+
+parser_build = subparsers.add_parser('build')
+parser_build.add_argument('platform', choices=PLATFORMS)
+parser_build.set_defaults(func=build)
+
+args = parser.parse_args()
+args.func(args)

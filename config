@@ -1,8 +1,0 @@
-[android]
-name: bubbles-android
-package: com.example.bubbles
-
-[x11]
-name: bubbles-x11
-width: 480
-height: 640
