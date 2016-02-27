@@ -38,8 +38,8 @@ def build_android():
 
 def init():
     os.mkdir('sgm')
-    os.mkdir('src')
     shutil.copy(SOURCE + 'app.h', 'sgm')
+    shutil.copytree(SOURCE + 'src', 'src')
     config = configparser.ConfigParser()
     config.read('config')
     platforms = config.sections()

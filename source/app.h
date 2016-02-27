@@ -1,10 +1,11 @@
-#ifndef _APP_H
-#define _APP_H
+#ifndef L_APP_H
+#define L_APP_H
 
 namespace App
 {
-    void init(unsigned int w, unsigned int h);
-    void tick(unsigned int t);
+    void init(int width, int height);
+    void tick(unsigned int dt);
+    void close();
 }
 
-#endif // _APP_H
+#endif // L_APP_H
