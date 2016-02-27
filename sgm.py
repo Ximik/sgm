@@ -7,7 +7,7 @@ import sys
 import fileinput
 from glob import glob
 
-SOURCE = os.path.dirname(os.path.realpath(__file__)) + '/source/'
+SOURCE = os.path.dirname(os.path.realpath(__file__)) + '/template/'
 
 def sed(files, f, t):
     for file in glob(files):
@@ -15,7 +15,7 @@ def sed(files, f, t):
           print(line.replace('%' + f + '%', t).rstrip('\n'))
 
 def add_android(config):
-    shutil.copytree(SOURCE + 'android', 'sgm/android')
+    shutil.copytree(SOURCE + 'sgm/android', 'sgm/android')
     name = config['name']
     package = config['package']
     _package_ = package.replace('.', '_')
@@ -38,7 +38,7 @@ def build_android():
 
 def init():
     os.mkdir('sgm')
-    shutil.copy(SOURCE + 'app.h', 'sgm')
+    shutil.copy(SOURCE + 'sgm/app.h', 'sgm')
     shutil.copytree(SOURCE + 'src', 'src')
     config = configparser.ConfigParser()
     config.read('config')
