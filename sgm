@@ -45,8 +45,10 @@ def build_x11(sources):
         source_o = os.path.splitext(source)[0] + '.o '
         objects.append(source_o)
         targets.append('\n' + source_o + ': $(SRC_DIR)/' + source + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + source)
-    with open('sgm/x11/build/Objects.mk', 'w') as mk:
+    os.chdir('sgm/x11/build')
+    with open('Objects.mk', 'w') as mk:
         mk.write('OBJECTS_LOCAL=' + ''.join(objects + targets))
+    os.system('make')
 
 def build_android(sources):
     sources.insert(0, 'hook.cpp')

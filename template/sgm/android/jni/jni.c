@@ -8,3 +8,15 @@ JNIEXPORT void JNICALL Java_%_package_%_JNIWrapper_onSurfaceChanged(JNIEnv * env
 JNIEXPORT void JNICALL Java_%_package_%_JNIWrapper_onDrawFrame(JNIEnv * env, jclass cls) {
     hook_draw_frame();
 }
+
+JNIEXPORT void JNICALL Java_%_package_%_JNIWrapper_onPointerDown(JNIEnv * env, jclass cls, jint id, jint x, jint y) {
+    hook_pointer_down(id, x, y);
+}
+
+JNIEXPORT void JNICALL Java_%_package_%_JNIWrapper_onPointerUp(JNIEnv * env, jclass cls, jint id, jint x, jint y) {
+    hook_pointer_up(id, x, y);
+}
+
+JNIEXPORT void JNICALL Java_%_package_%_JNIWrapper_onPointerMove(JNIEnv * env, jclass cls, jint id, jint x, jint y) {
+    hook_pointer_move(id, x, y);
+}
