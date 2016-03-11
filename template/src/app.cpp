@@ -2,11 +2,11 @@
 
 #include "../sgm/app.h"
 
-#include <GLES2/gl2.h>
+#include "gles.h"
 
 namespace App
 {
-    
+
 }
 
 void App::init(int width, int height)
