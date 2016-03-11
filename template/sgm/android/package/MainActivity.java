@@ -8,32 +8,32 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.view.View;
+import android.view.MotionEvent;
 
 public class MainActivity extends Activity {
     private GLSurfaceView glSurfaceView;
-    private RendererWrapper rendererWrapper;
     private boolean rendererSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         glSurfaceView = new GLSurfaceView(this);
-        rendererWrapper = new RendererWrapper(this);
         if (isEmulator()) {
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         }
         glSurfaceView.setEGLContextClientVersion(2);
-        glSurfaceView.setRenderer(rendererWrapper);
+        glSurfaceView.setRenderer(new RendererWrapper());
         rendererSet = true;
         setContentView(glSurfaceView);
-        glSurfaceView.setOnTouchListener(new OnTouchListener() {
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int action = event.getAction() & MotionEvent.ACTION_MASK;
                 int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                 int id = event.getPointerId(pointerIndex);
-                int x = event.getX(pointerIndex);
-                int y = event.getY(pointerIndex);
+                int x = Math.round(event.getX(pointerIndex));
+                int y = Math.round(event.getY(pointerIndex));
 
                 switch (action) {
                 case MotionEvent.ACTION_DOWN:

@@ -1,3 +1,5 @@
+#ifndef LOG
+
 #ifdef __ANDROID__
 #       include <android/log.h>
 #       define LOG_TAG "SGM"
@@ -5,4 +7,6 @@
 #else
 #       include <cstdio>
 #       define LOG(f, ...) printf(f "\n",##__VA_ARGS__)
+#endif
+
 #endif

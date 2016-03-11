@@ -33,7 +33,7 @@ void hook_pause()
 
 void hook_resume()
 {
-    int time = _get_time();
+    _time = _get_time();
 }
 
 void hook_pointer_down(int id, int x, int y)

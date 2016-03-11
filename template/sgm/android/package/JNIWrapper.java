@@ -18,3 +18,4 @@ public class JNIWrapper {
     public static native void onPause();
 
     public static native void onResume();
+}

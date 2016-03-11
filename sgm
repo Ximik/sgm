@@ -34,9 +34,9 @@ def add_android(config):
     sed('sgm/android/AndroidManifest.xml', 'name', name)
     sed('sgm/android/AndroidManifest.xml', 'package', package)
     sed('sgm/android/AndroidManifest.xml', 'orientation', config['orientation'])
-    sed('sgm/android/java/*.java', 'package', package)
+    sed('sgm/android/package/*.java', 'package', package)
     sed('sgm/android/jni/jni.c', '_package_', _package_)
-    shutil.move('sgm/android/java', 'sgm/android/src/' + package_path)
+    shutil.move('sgm/android/package', 'sgm/android/src/' + package_path)
 
 def build_x11(sources):
     objects = []
@@ -52,13 +52,13 @@ def build_x11(sources):
     os.system('make')
 
 def build_android(sources):
-    sources = 'LOCAL_SRC_FILES := hook.cpp jni.c'
+    src = 'LOCAL_SRC_FILES := hook.cpp jni.c'
     for source in sources:
-        sources += ' ' + source[4:]
+        src += ' $(SRC_DIR)/' + source[4:]
     os.chdir('sgm/android')
-    for line in fileinput.input('sgm/android/jni/Android.mk', inplace = 1):
+    for line in fileinput.input('jni/Android.mk', inplace = 1):
         if line.startswith('LOCAL_SRC_FILES'):
-            print(sources)
+            print(src)
         else:
             print(line.rstrip('\n'))
     os.system('ndk-build && ant debug')

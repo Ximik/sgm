@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 
-TARGET= bubbles
+TARGET= app
 SRC_DIR= ../../../src
 X11_SRC_DIR= ../src
 
