@@ -6,3 +6,4 @@ height: 640
 [android]
 name: %name%
 package: com.%name_lower%
+orientation: portrait
