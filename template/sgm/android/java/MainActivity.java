@@ -11,14 +11,20 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private GLSurfaceView glSurfaceView;
+    private RendererWrapper rendererWrapper;
+    private boolean rendererSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         glSurfaceView = new GLSurfaceView(this);
-        glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        rendererWrapper = new RendererWrapper(this);
+        if (isEmulator()) {
+            glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        }
         glSurfaceView.setEGLContextClientVersion(2);
-        glSurfaceView.setRenderer(new RendererWrapper());
+        glSurfaceView.setRenderer(rendererWrapper);
+        rendererSet = true;
         setContentView(glSurfaceView);
         glSurfaceView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -32,30 +38,15 @@ public class MainActivity extends Activity {
                 switch (action) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_POINTER_DOWN:
-                    glSurfaceView.queueEvent(new Runnable() {
-                        @Override
-                        public void run() {
-                            rendererWrapper.handlePointerDown(id, x, y);
-                        }
-                    });
+                    JNIWrapper.onPointerDown(id, x, y);
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_POINTER_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    glSurfaceView.queueEvent(new Runnable() {
-                        @Override
-                        public void run() {
-                            rendererWrapper.handlePointerUp(id, x, y);
-                        }
-                    });
+                    JNIWrapper.onPointerUp(id, x, y);
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    glSurfaceView.queueEvent(new Runnable() {
-                        @Override
-                        public void run() {
-                            rendererWrapper.handlePointerMove(id, x, y);
-                        }
-                    });
+                    JNIWrapper.onPointerMove(id, x, y);
                     break;
                 }
                 return true;
@@ -63,13 +54,30 @@ public class MainActivity extends Activity {
         });
     }
 
+    private boolean isEmulator() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+              && (Build.FINGERPRINT.startsWith("generic")
+              || Build.FINGERPRINT.startsWith("unknown")
+              || Build.MODEL.contains("google_sdk")
+              || Build.MODEL.contains("Emulator")
+              || Build.MODEL.contains("Android SDK built for x86"));
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
+        if (rendererSet) {
+            glSurfaceView.onPause();
+            JNIWrapper.onPause();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (rendererSet) {
+            glSurfaceView.onResume();
+            JNIWrapper.onResume();
+        }
     }
 }
