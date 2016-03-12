@@ -1,40 +1,14 @@
 #include "app.h"
+#include "inc/gles.h"
 
-#include "../sgm/app.h"
-
-#include "gles.h"
-
-namespace App
+App::App(int width, int height)
 {
-
 }
 
-void App::init(int width, int height)
+void App::glLoad()
 {
-
 }
 
-void App::update(int dt)
+void App::drawFrame(int dt)
 {
-
-}
-
-void App::pointerDown(int id, int x, int y)
-{
-
-}
-
-void App::pointerUp(int id, int x, int y)
-{
-
-}
-
-void App::pointerMove(int id, int x, int y)
-{
-
-}
-
-void App::close()
-{
-
 }

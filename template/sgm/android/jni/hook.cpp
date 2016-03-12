@@ -1,12 +1,12 @@
 #include "hook.h"
-#include "../../app.h"
+#include "../../../src/app.h"
 
 #include <time.h>
 
-int _time;
-bool hook_init = true;
+int hook_time;
+App *app;
 
-int _get_time()
+int hook_get_time()
 {
   struct timeval  now;
   gettimeofday(&now, NULL);
@@ -15,40 +15,39 @@ int _get_time()
 
 void hook_surface_changed(int width, int height)
 {
-    if (hook_init) {
-        hook_init = false;
-        App::init(width, height);
+    if (app) {
+        app->restore();
     } else {
-//         App::resume();
+        app = new App(width, height);
     }
-//     App::initGL();
-    _time = _get_time();
+    app->glLoad();
+    hook_time = hook_get_time();
 }
 
 void hook_pause()
 {
-//     App::pause();
+    app->suspend();
 }
 
 void hook_draw_frame()
 {
-    int time = _get_time();
-    int dt = time - _time;
-    _time = time;
-    App::update(dt);
+    int time = hook_get_time();
+    int dt = time - hook_time;
+    hook_time = time;
+    app->drawFrame(dt);
 }
 
 void hook_pointer_down(int id, int x, int y)
 {
-    App::pointerDown(id, x, y);
+    app->pointerDown(id, x, y);
 }
 
 void hook_pointer_up(int id, int x, int y)
 {
-    App::pointerUp(id, x, y);
+    app->pointerUp(id, x, y);
 }
 
 void hook_pointer_move(int id, int x, int y)
 {
-    App::pointerMove(id, x, y);
+    app->pointerMove(id, x, y);
 }

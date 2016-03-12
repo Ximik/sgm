@@ -83,7 +83,6 @@ def init(args):
     if not os.path.isfile('config'):
         print('no config file')
         sys.exit(errno.ENOENT)
-    shutil.copy(SOURCE + 'sgm/app.h', 'sgm')
     shutil.copytree(SOURCE + 'src', 'src')
     config = configparser.ConfigParser()
     config.read('config')

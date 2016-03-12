@@ -1,5 +1,5 @@
 #include "x11.h"
-#include "../../app.h"
+#include "../../../src/app.h"
 
 
 #include <X11/Xlib.h>
@@ -35,6 +35,7 @@ namespace X11
     EGLSurface egl_surface;
     EGLContext egl_context;
     EGLDisplay egl_display;
+    App *app;
 }
 
 void X11::init()
@@ -105,7 +106,6 @@ void X11::init()
     window = XCreateWindow(x_display, rootWindow, 0, 0, width, height,
                 0, visInfo->depth, InputOutput,
                 visInfo->visual, mask, &attr );
-
    /* set hints and properties */
 
         XSizeHints sizehints;
@@ -167,8 +167,10 @@ void X11::init()
 
     Atom WM_DELETE_WINDOW = XInternAtom(x_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(x_display, window, &WM_DELETE_WINDOW, 1);
+    XSelectInput(x_display, window, ButtonPressMask | ButtonReleaseMask | Button1MotionMask);
 
-    App::init(width, height);
+    app = new App(width, height);
+    app->glLoad();
 }
 
 void X11::mainLoop()
@@ -176,7 +178,7 @@ void X11::mainLoop()
     _time = _get_time();
     for(;;) {
         XEvent event;
-        
+
         int time = _get_time();
         int dt = time - _time;
         while(XPending(x_display)) {
@@ -217,22 +219,24 @@ void X11::mainLoop()
                 return;
             case ButtonPress:
                 if (event.xbutton.button == Button1) {
-                    App::pointerDown(0, event.xbutton.x, event.xbutton.y);
+                    app->pointerDown(0, event.xbutton.x, event.xbutton.y);
                 }
                 break;
             case ButtonRelease:
                 if (event.xbutton.button == Button1) {
-                    App::pointerUp(0, event.xbutton.x, event.xbutton.y);
+                    app->pointerUp(0, event.xbutton.x, event.xbutton.y);
                 }
                 break;
             case MotionNotify:
-                App::pointerMove(0, event.xbutton.x, event.xbutton.y);
+                if (event.xbutton.x >= 0 && event.xbutton.x <= width && event.xbutton.y >= 0 && event.xbutton.y <= height) {
+                    app->pointerMove(0, event.xbutton.x, event.xbutton.y);
+                }
                 break;
             }
         }
 
-        if (dt > 16) {
-            App::update(dt);
+        if (dt >= 16) {
+            app->drawFrame(dt);
             _time = time;
             eglSwapBuffers(egl_display, egl_surface);
         }
@@ -241,7 +245,6 @@ void X11::mainLoop()
 
 void X11::close()
 {
-    App::close();
 
     eglDestroyContext(egl_display, egl_context);
     eglDestroySurface(egl_display, egl_surface);
@@ -261,3 +264,4 @@ void X11::close()
 //{
 //    std::cerr << str << '\n';
 //}
+
