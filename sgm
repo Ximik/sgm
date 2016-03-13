@@ -44,8 +44,9 @@ def build_x11(sources):
     for source in sources:
         source = source[4:]
         source_o = os.path.splitext(source)[0] + '.o '
+        source_o = source_o.replace('/', '_')
         objects.append(source_o)
-        targets.append('\n' + source_o + ': $(SRC_DIR)/' + source + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + source)
+        targets.append('\n' + source_o + ': $(SRC_DIR)/' + source + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + source + ' -o ' + source_o)
     os.chdir('platform/x11/build')
     with open('Objects.mk', 'w') as mk:
         mk.write('OBJECTS_LOCAL=' + ''.join(objects + targets))
