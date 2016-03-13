@@ -1,5 +1,5 @@
 #include "app.h"
-#include "inc/gles.h"
+#include "inc/gl.h"
 
 App::App(int width, int height)
 {

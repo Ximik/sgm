@@ -1,9 +1,9 @@
 #ifndef APP_H
 #define APP_H
 
-#include "inc/l_app.h"
+#include "inc/base_app.h"
 
-class App : public LApp
+class App : public BaseApp
 {
 public:
     App(int width, int height);

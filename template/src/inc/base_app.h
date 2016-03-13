@@ -1,7 +1,7 @@
-#ifndef L_APP_H
-#define L_APP_H
+#ifndef BASE_APP_H
+#define BASE_APP_H
 
-class LApp
+class BaseApp
 {
 public:
     void glLoad();
@@ -13,4 +13,4 @@ public:
     void pointerMove(int id, int x, int y) {};
 };
 
-#endif // L_APP_H
+#endif // BASE_APP_H

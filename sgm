@@ -19,24 +19,24 @@ def sed(files, f, t):
           print(line.replace('%' + f + '%', t).rstrip('\n'))
 
 def add_x11(config):
-    shutil.copytree(SOURCE + 'sgm/x11', 'sgm/x11')
-    x11_cpp = 'sgm/x11/src/x11.cpp'
+    shutil.copytree(SOURCE + 'platform/x11', 'platform/x11')
+    x11_cpp = 'platform/x11/src/x11.cpp'
     sed(x11_cpp, 'name', config['name'])
     sed(x11_cpp, 'width', config['width'])
     sed(x11_cpp, 'height', config['height'])
 
 def add_android(config):
-    shutil.copytree(SOURCE + 'sgm/android', 'sgm/android')
+    shutil.copytree(SOURCE + 'platform/android', 'platform/android')
     name = config['name']
     package = config['package']
     _package_ = package.replace('.', '_')
     package_path = package.replace('.', '/')
-    sed('sgm/android/AndroidManifest.xml', 'name', name)
-    sed('sgm/android/AndroidManifest.xml', 'package', package)
-    sed('sgm/android/AndroidManifest.xml', 'orientation', config['orientation'])
-    sed('sgm/android/package/*.java', 'package', package)
-    sed('sgm/android/jni/jni.c', '_package_', _package_)
-    shutil.move('sgm/android/package', 'sgm/android/src/' + package_path)
+    sed('platform/android/AndroidManifest.xml', 'name', name)
+    sed('platform/android/AndroidManifest.xml', 'package', package)
+    sed('platform/android/AndroidManifest.xml', 'orientation', config['orientation'])
+    sed('platform/android/package/*.java', 'package', package)
+    sed('platform/android/jni/jni.c', '_package_', _package_)
+    shutil.move('platform/android/package', 'platform/android/src/' + package_path)
 
 def build_x11(sources):
     objects = []
@@ -46,7 +46,7 @@ def build_x11(sources):
         source_o = os.path.splitext(source)[0] + '.o '
         objects.append(source_o)
         targets.append('\n' + source_o + ': $(SRC_DIR)/' + source + '\n\t$(CXX) -c $(CXXFLAGS) $(INCPATH) $(SRC_DIR)/' + source)
-    os.chdir('sgm/x11/build')
+    os.chdir('platform/x11/build')
     with open('Objects.mk', 'w') as mk:
         mk.write('OBJECTS_LOCAL=' + ''.join(objects + targets))
     os.system('make')
@@ -55,7 +55,7 @@ def build_android(sources):
     src = 'LOCAL_SRC_FILES := hook.cpp jni.c'
     for source in sources:
         src += ' $(SRC_DIR)/' + source[4:]
-    os.chdir('sgm/android')
+    os.chdir('platform/android')
     for line in fileinput.input('jni/Android.mk', inplace = 1):
         if line.startswith('LOCAL_SRC_FILES'):
             print(src)
@@ -76,9 +76,9 @@ def new(args):
 
 def init(args):
     try:
-        os.mkdir('sgm')
+        os.mkdir('platform')
     except FileExistsError:
-        print('sgm folder already exists')
+        print('platform folder already exists')
         sys.exit(errno.EEXIST)
     if not os.path.isfile('config'):
         print('no config file')
